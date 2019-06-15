@@ -25,21 +25,22 @@
 
 
 # Title and description of your site
-title         : 'Simplicity'
-description   : 'Simplicity is a fast and easy to use jekyll theme for minimalists concentrating on elegance and flexibility.'
-slogan        : 'A Minimalistic Jekyll Theme'
+title         : '一页障目'
+description   : '博客、随笔、开发记录……'
+slogan        : '移动互联网：更多信息，更少信息量'
 
 
 
 # Build settings
-url           : 'https://phlow.github.io/simplicity'
+url           : 'https://gitxn.github.io/'
 baseurl       : ''
 markdown      : kramdown
 highlighter   : rouge
 permalink     : /:categories/:title/
 encoding      : utf-8
 destination   : _site
-lang          : 'en'             # The language setting is used in /includes/header.html for html-settings
+lang          : 'zh'             
+# The language setting is used in /includes/header.html for html-settings
 
 
 
@@ -80,14 +81,17 @@ color_scheme: simplicity
 #
 #   import is necessary to import the font from google
 #   the settings for the fonts are used in /assets/css/simplicity.scss
+
 font:
   import: 'Source+Code+Pro|Source+Sans+Pro:400,400italic,700,700italic'
+
 #  import: 'Titillium+Web:400,400italic,700,700italic'
 #  import: 'Roboto:400,400italic,700,700italic|Roboto+Mono'
 #  import: 'Merriweather:400,400italic,700,700italic'
 #  import: 'Arvo:400,400italic,700,700italic'
 #  import: 'Gentium+Basic:400,400italic,700,700italic'
 #  import: 'Fira+Sans:400,400italic,700,700italic|Fira+Mono'
+
   font-family-serif         : 'Georgia, "Times New Roman", serif;'
   font-family-sans-serif    : '"Source Sans Pro", "Neue Helvetica", Arial, serif;'
   base-font-family          : '"Source Sans Pro", "Neue Helvetica", Arial, serif;'
@@ -121,7 +125,7 @@ defaults:
       layout: page      # Set default layout to page
       show_meta: false  # Hide metadata for all pages
       comments: false
-      author: 'Moritz »mo.« Sauer'     # Default author for pages
+      author: 'GitXn'     # Default author for pages
   -
     scope:
       path: ''
@@ -130,7 +134,7 @@ defaults:
       layout: page      # Set default layout to page
       show_meta: true   # Show metadata for all posts
       comments: false
-      author: 'Moritz »mo.« Sauer'     # Default author for posts
+      author: 'GitXn'     # Default author for posts
 
 
 
@@ -140,7 +144,7 @@ defaults:
 #   ___/ / /___/ /_/ /
 #  /____/_____/\____/    Verify Website to Webmaster Tools
 
-google_site_verification   : 'Vk0IOJ2jwG_qEoG7fuEXYqv0m2rLa8P778Fi_GrsgEQ'
+#google_site_verification   : ''
 # bing_webmastertools_id   : ''
 # alexa_verify_id          : ''
 
@@ -216,9 +220,8 @@ sass:
 # _/includes/_4_footer.html.
 
 socialmedia:
-    youtube: PhlowMedia
-    github: phlow
-    twitter: phlow
+    github: GitXn
+    # twitter: phlow
     # facebook: phlow.media
     # soundcloud: phlow
     # tumblr: motizen
