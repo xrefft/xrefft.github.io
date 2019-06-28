@@ -1,8 +1,20 @@
-
+---
+layout: post
+title:  "《批判性思维工具》（《Critical Thinking》）读书笔记"
+category: 笔记
+tag: [批判性思维,读书笔记]
+---
+<ul>
+  {% for post in site.posts %}
+    <li>
+      <a href="{{ post.url }}">{{ post.title }}</a>
+    </li>
+  {% endfor %}
+</ul>
+* 目录
+{:toc}
 
 ## 《批判性思维工具》（《Critical Thinking》）读书笔记
-
-[TOC]
 
 ### 第一章 究竟什么是批判性思维
 
@@ -1174,29 +1186,29 @@ graph LR
 
 - 所有的S都是P
 
-  ![书中表达](../image/批判性思维工具/AllSisP.svg)
+  ![书中表达](/image/批判性思维工具/AllSisP.svg)
 
-  ![我所学的表达](../image/批判性思维工具/AllSisP2.svg)
+  ![我所学的表达](/image/批判性思维工具/AllSisP2.svg)
 
 - 所有的S都不是P
 
-  ![书中表达](../image/批判性思维工具/AllSisnotP.svg)
+  ![书中表达](/image/批判性思维工具/AllSisnotP.svg)
 
-  ![我所学的表达](../image/批判性思维工具/AllSisnotP2.svg)
+  ![我所学的表达](/image/批判性思维工具/AllSisnotP2.svg)
 
 - 有的S是P
 
-  ![书中表达](../image/批判性思维工具/SomeSisP.svg)
+  ![书中表达](/image/批判性思维工具/SomeSisP.svg)
 
-  ![我所学的表达](../image/批判性思维工具/SomeSisP2.svg)
+  ![我所学的表达](/image/批判性思维工具/SomeSisP2.svg)
 
   
 
 - 有的S不是P
 
-  ![书中表达](../image/批判性思维工具/SomeSisnotP.svg)
+  ![书中表达](/image/批判性思维工具/SomeSisnotP.svg)
 
-  ![我所学的表达](../image/批判性思维工具/SomeSisP2.svg)
+  ![我所学的表达](/image/批判性思维工具/SomeSisP2.svg)
 
 #### 8.1.2转换成标准形式
 
@@ -1208,7 +1220,7 @@ graph LR
 
 8.1.3对当方阵
 
-![对当方阵](../image/批判性思维工具/对当方阵.svg)
+![对当方阵](/image/批判性思维工具/对当方阵.svg)
 
 ### 8.2 三种关于直言判断的运算
 
@@ -1283,7 +1295,7 @@ graph LR
 
   有的S是P
 
-  ![](../image/批判性思维工具/Venn0.png)
+  ![](/image/批判性思维工具/Venn0.png)
 
 #### 8.3.2含有未表达前提的直言三段论
 
