@@ -4,13 +4,7 @@ title:  "《批判性思维工具》（《Critical Thinking》）读书笔记"
 category: 笔记
 tag: [批判性思维,读书笔记]
 ---
-<ul>
-  {% for post in site.posts %}
-    <li>
-      <a href="{{ post.url }}">{{ post.title }}</a>
-    </li>
-  {% endfor %}
-</ul>
+
 * 目录
 {:toc}
 
