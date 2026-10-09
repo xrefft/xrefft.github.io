@@ -1,27 +1,16 @@
 ---
 layout: default
 ---
-<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
-
-  <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
-    <p class="post-meta">
-      <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
-        {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
-        {{ page.date | date: date_format }}
-      </time>
-      {%- if page.author -%}
-        • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author | escape }}</span></span>
-      {%- endif -%}</p>
+<article class="article">
+  <header class="article-header">
+    <a class="back-link" href="{{ '/' | relative_url }}">← 所有文章</a>
+    <p class="eyebrow"><time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%Y 年 %m 月 %d 日' }}</time>{% if page.categories.size > 0 %} · {{ page.categories | join: ' / ' | escape }}{% endif %}</p>
+    <h1>{{ page.title | escape }}</h1>
   </header>
-
-  <div class="post-content e-content" itemprop="articleBody">
-    {{ content }}
-  </div>
-
-  {%- if site.disqus.shortname -%}
-    {%- include disqus_comments.html -%}
-  {%- endif -%}
-
-  <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
+  <div class="prose">{% comment %}Repair a legacy in-article fragment without editing the original post.{% endcomment %}
+    {{ content | replace: 'href="#2.2.1演绎论证"', 'href="#221演绎论证"' }}</div>
+  <nav class="post-pagination" aria-label="相邻文章">
+    {% if page.previous %}<a href="{{ page.previous.url | relative_url }}"><span>上一篇</span>{{ page.previous.title | escape }}</a>{% endif %}
+    {% if page.next %}<a href="{{ page.next.url | relative_url }}"><span>下一篇</span>{{ page.next.title | escape }}</a>{% endif %}
+  </nav>
 </article>
