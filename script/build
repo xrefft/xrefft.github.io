@@ -1,6 +1,5 @@
 #!/bin/sh
-
-set -e
-
-echo "Building the example site..."
-bundle exec jekyll build
+set -eu
+# Ensure Chinese filenames work even in a C-locale shell.
+export RUBYOPT="-EUTF-8 ${RUBYOPT:-}"
+JEKYLL_ENV=production bundle exec jekyll build --strict_front_matter --trace

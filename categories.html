@@ -1,37 +1,12 @@
 ---
 layout: page
 permalink: /categories/
-title: Categories
+title: 文章归档
 ---
-
-
-<div id="archives">
-<ul>
-{% for category in site.categories %}
-  <li>
-  <div class="archive-group">
-    {% capture category_name %}{{ category | first }}{% endcapture %}
-    <div id="#{{ category_name | slugize }}"></div>
-    <p></p>
-    <h3 class="category-head">{{ category_name }}</h3>
-    <a name="{{ category_name | slugize }}"></a>
-    {% for post in site.categories[category_name] %}
-        {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
-        <span class="post-meta">lastest: {{ post.date | date: date_format }}</span>
-          <a class="post-link" href="{{ post.url | relative_url }}">
-            <h4> {{ post.title | escape }} </h4>
-          </a>
-        {%- if site.show_excerpts -%}
-          {{ post.excerpt }}
-        {%- endif -%}
-        {%- if site.show_excerpts -%}
-          {{ post.excerpt }}
-        {%- endif -%}
-    {% endfor %}
-  </div>
-  </li>
+{% assign years = site.posts | group_by_exp: 'post', "post.date | date: '%Y'" %}
+{% for year in years %}
+<section class="archive-year" aria-labelledby="year-{{ year.name }}">
+  <h2 id="year-{{ year.name }}">{{ year.name }}</h2>
+  <ul class="archive-list">{% for post in year.items %}<li><time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: '%m.%d' }}</time><a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a></li>{% endfor %}</ul>
+</section>
 {% endfor %}
-</ul>
-</div>
-
-
