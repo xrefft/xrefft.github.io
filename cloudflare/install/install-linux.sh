@@ -33,4 +33,4 @@ EOF
 xdg-mime default cf-speed.desktop x-scheme-handler/cfspeed
 echo "安装完成：$install_dir"
 echo '可从网页点击“打开本机测速”。卸载时退出进程，删除安装目录和 cf-speed.desktop。'
-"$install_dir/cf-speed" --open > "$install_dir/runtime.log" 2>&1 < /dev/null &
+nohup "$install_dir/cf-speed" --open > "$install_dir/runtime.log" 2>&1 < /dev/null &
