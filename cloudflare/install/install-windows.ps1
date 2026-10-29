@@ -13,9 +13,9 @@ New-Item -ItemType Directory -Path $tempDir | Out-Null
 try {
     Invoke-WebRequest -UseBasicParsing "$base/$asset" -OutFile (Join-Path $tempDir $asset)
     Invoke-WebRequest -UseBasicParsing "$base/SHA256SUMS" -OutFile (Join-Path $tempDir 'SHA256SUMS')
-    $matches = @(Get-Content (Join-Path $tempDir 'SHA256SUMS') | Where-Object { $_ -match ('^[0-9a-f]{64}\s+' + [regex]::Escape($asset) + '$') })
-    if ($matches.Count -ne 1) { throw 'Checksum entry missing or duplicated.' }
-    $expected = ($matches[0] -split '\s+')[0]
+    $checksumLines = @(Get-Content (Join-Path $tempDir 'SHA256SUMS') | Where-Object { $_ -match ('^[0-9a-f]{64}\s+' + [regex]::Escape($asset) + '$') })
+    if ($checksumLines.Count -ne 1) { throw 'Checksum entry missing or duplicated.' }
+    $expected = ($checksumLines[0] -split '\s+')[0]
     $actual = (Get-FileHash -Algorithm SHA256 (Join-Path $tempDir $asset)).Hash
     if ($actual -ne $expected) { throw 'SHA-256 verification failed; installation stopped.' }
     Expand-Archive (Join-Path $tempDir $asset) -DestinationPath (Join-Path $tempDir 'unpacked')
