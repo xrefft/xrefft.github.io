@@ -2,7 +2,7 @@ name: Verify published installers
 on:
   push:
     branches: [master]
-    paths: ['.github/workflows/install-check.yml']
+    paths: ['.github/workflows/install-check.yml', 'cloudflare/install/**']
   workflow_dispatch:
 permissions:
   contents: read
@@ -15,16 +15,30 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v7
       - name: Download and run published Unix installer
         if: runner.os != 'Windows'
         shell: bash
         run: |
           platform=linux
           if [ "$RUNNER_OS" = macOS ]; then platform=macos; fi
-          curl -fSL --retry 2 "https://xrefft.github.io/cloudflare/install/install-$platform.sh" -o "$RUNNER_TEMP/install.sh"
+          published=0
+          for attempt in $(seq 1 60); do
+            curl -fsSL --connect-timeout 10 --max-time 20 "https://xrefft.github.io/cloudflare/install/install-$platform.sh" -o "$RUNNER_TEMP/install.sh"
+            if cmp -s "$RUNNER_TEMP/install.sh" "cloudflare/install/install-$platform.sh"; then published=1; break; fi
+            echo 'Waiting for Pages to publish the matching installer…'
+            sleep 5
+          done
+          test "$published" = 1
+          sh "$RUNNER_TEMP/install.sh"
           sh "$RUNNER_TEMP/install.sh"
           if [ "$RUNNER_OS" = Linux ]; then
-            test "$(xdg-mime query default x-scheme-handler/cfspeed)" = cf-speed.desktop
+            if [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then
+              test "$(xdg-mime query default x-scheme-handler/cfspeed)" = cf-speed.desktop
+            else
+              test -x "$HOME/.local/share/cf-speed/cf-speed"
+              echo 'Verified headless installation; GUI protocol launch is not claimed.'
+            fi
           else
             open 'cfspeed://open'
           fi
@@ -33,9 +47,19 @@ jobs:
         shell: powershell
         run: |
           $scriptPath = Join-Path $env:RUNNER_TEMP 'install-windows.ps1'
-          Invoke-WebRequest -UseBasicParsing 'https://xrefft.github.io/cloudflare/install/install-windows.ps1' -OutFile $scriptPath
+          $expectedHash = (Get-FileHash 'cloudflare/install/install-windows.ps1').Hash
+          $published = $false
+          for ($attempt = 0; $attempt -lt 60; $attempt++) {
+            Invoke-WebRequest -UseBasicParsing 'https://xrefft.github.io/cloudflare/install/install-windows.ps1' -OutFile $scriptPath -TimeoutSec 20
+            if ((Get-FileHash $scriptPath).Hash -eq $expectedHash) { $published = $true; break }
+            Write-Host 'Waiting for Pages to publish the matching installer…'
+            Start-Sleep -Seconds 5
+          }
+          if (-not $published) { throw 'Published installer did not match this commit' }
           powershell -NoProfile -ExecutionPolicy Bypass -File $scriptPath
           if ($LASTEXITCODE -ne 0) { throw 'Installer failed' }
+          powershell -NoProfile -ExecutionPolicy Bypass -File $scriptPath
+          if ($LASTEXITCODE -ne 0) { throw 'Repair installation failed' }
           $registered = (Get-Item 'HKCU:\Software\Classes\cfspeed\shell\open\command').GetValue('')
           if ($registered -notmatch 'cf-speed.exe') { throw 'URL handler missing' }
       - name: Verify installed service and real download

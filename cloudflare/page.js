@@ -24,3 +24,15 @@ document.getElementById('cf-file').addEventListener('change', async (event) => {
     status.textContent = `已导入 ${rows.length} 个候选，其中 ${count} 个有有效 HTTPS 耗时。来源为你选择的文件，网页未重新测量。`;
   } catch (error) { status.textContent = `无法导入：${error.message}`; }
 });
+
+for (const button of document.querySelectorAll('[data-copy-target]')) {
+  button.addEventListener('click', async () => {
+    const output = document.getElementById('cf-copy-status');
+    try {
+      await navigator.clipboard.writeText(document.getElementById(button.dataset.copyTarget).textContent);
+      output.textContent = '已复制。请在对应系统的终端中粘贴并运行，等待脚本报告服务就绪。';
+    } catch (_) {
+      output.textContent = '浏览器未允许复制，请手动选择上方整段命令。';
+    }
+  });
+}
