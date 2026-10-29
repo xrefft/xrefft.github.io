@@ -47,11 +47,12 @@ jobs:
         shell: powershell
         run: |
           $scriptPath = Join-Path $env:RUNNER_TEMP 'install-windows.ps1'
-          $expectedHash = (Get-FileHash 'cloudflare/install/install-windows.ps1').Hash
+          $expectedText = (Get-Content -Raw -Encoding UTF8 'cloudflare/install/install-windows.ps1').Replace("`r`n", "`n")
           $published = $false
           for ($attempt = 0; $attempt -lt 60; $attempt++) {
             Invoke-WebRequest -UseBasicParsing 'https://xrefft.github.io/cloudflare/install/install-windows.ps1' -OutFile $scriptPath -TimeoutSec 20
-            if ((Get-FileHash $scriptPath).Hash -eq $expectedHash) { $published = $true; break }
+            $actualText = (Get-Content -Raw -Encoding UTF8 $scriptPath).Replace("`r`n", "`n")
+            if ($actualText -ceq $expectedText) { $published = $true; break }
             Write-Host 'Waiting for Pages to publish the matching installer…'
             Start-Sleep -Seconds 5
           }
