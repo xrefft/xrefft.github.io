@@ -1,0 +1,100 @@
+name: Build desktop probe releases
+
+on:
+  push:
+    branches: [master]
+    paths: ['companion/**', '.github/workflows/companion.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.check.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Check immutable release version
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view cf-speed-v0.1.0 >/dev/null 2>&1; then
+            if git diff --quiet cf-speed-v0.1.0 HEAD -- companion; then
+              echo 'publish=false' >> "$GITHUB_OUTPUT"
+            else
+              echo 'Companion source changed after v0.1.0. Bump the version and installer release URLs.' >&2
+              exit 1
+            fi
+          else
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          fi
+  native-test:
+    needs: version-check
+    if: needs.version-check.outputs.publish == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.22.x'
+          cache: false
+      - name: Build and check native executable
+        shell: bash
+        env:
+          GO111MODULE: 'off'
+        run: |
+          go test ./companion
+          go build -o "$RUNNER_TEMP/cf-speed.exe" ./companion
+          "$RUNNER_TEMP/cf-speed.exe" --version
+      - name: Real network and API smoke test
+        shell: bash
+        run: python companion/smoke.py "$RUNNER_TEMP/cf-speed.exe"
+
+  release:
+    needs: [version-check, native-test]
+    if: needs.version-check.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.22.x'
+          cache: false
+      - name: Cross compile and package
+        env:
+          GO111MODULE: 'off'
+          CGO_ENABLED: '0'
+        run: |
+          mkdir -p dist package
+          for target in darwin-amd64 darwin-arm64 linux-amd64 linux-arm64 windows-amd64 windows-arm64; do
+            os=${target%-*}; arch=${target#*-}
+            binary=cf-speed
+            if [ "$os" = windows ]; then binary=cf-speed.exe; fi
+            GOOS="$os" GOARCH="$arch" go build -trimpath -ldflags='-s -w -X main.version=v0.1.0' -o "package/$binary" ./companion
+            cp cloudflare/NOTICE.txt cloudflare/LICENSE-Apache-2.0.txt package/
+            if [ "$os" = windows ]; then
+              (cd package && zip -q "../dist/cf-speed-$target.zip" "$binary" NOTICE.txt LICENSE-Apache-2.0.txt)
+            else
+              tar -czf "dist/cf-speed-$target.tar.gz" -C package "$binary" NOTICE.txt LICENSE-Apache-2.0.txt
+            fi
+            rm "package/$binary"
+          done
+          (cd dist && sha256sum *.tar.gz *.zip > SHA256SUMS)
+      - name: Publish versioned binaries
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create cf-speed-v0.1.0 dist/* --target "$GITHUB_SHA" --title 'Cloudflare IP Test v0.1.0' --notes-file companion/RELEASE.md

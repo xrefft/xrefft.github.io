@@ -21,6 +21,7 @@ defaults:
     values:
       layout: post
 exclude:
+  - companion
   - README.md
   - Gemfile
   - Gemfile.lock

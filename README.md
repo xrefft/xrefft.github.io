@@ -46,6 +46,10 @@ script/cibuild
 
 Dependabot 每月检查 Ruby 依赖和 Actions。手动更新时运行 `bundle update` 和 `script/cibuild`，检查页面后提交 `Gemfile.lock`。
 
+## Cloudflare IP 测速工具
+
+入口 `/cloudflare/` 已接入主导航。Windows、macOS、Linux 用户通过安装脚本下载执行器，网页用 `cfspeed://open` 打开本机结果页。iOS 使用 a-Shell 和手工配置的快捷指令；详见页面说明。执行器源码和开发验证见 `companion/README.md`。工具的 HTTPS 指标与原项目 ICMP ping 不同。
+
 ## 许可
 
 保留仓库原有 MIT 许可证和 Minima 版权声明，见 `LICENSE.txt`。

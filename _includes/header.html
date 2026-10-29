@@ -3,6 +3,7 @@
   <nav aria-label="主导航">
     <a href="{{ '/' | relative_url }}" {% if page.url == '/' %}aria-current="page"{% endif %}>文章</a>
     <a href="{{ '/categories/' | relative_url }}" {% if page.url == '/categories/' %}aria-current="page"{% endif %}>归档</a>
+    <a href="{{ '/cloudflare/' | relative_url }}" {% if page.url == '/cloudflare/' %}aria-current="page"{% endif %}>测速</a>
     <a href="{{ '/about/' | relative_url }}" {% if page.url == '/about/' %}aria-current="page"{% endif %}>关于</a>
   </nav>
 </header>

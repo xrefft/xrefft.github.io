@@ -1,0 +1,10 @@
+Cloudflare IP Test
+
+来源项目：https://github.com/olixu/cloudflare-ip-ping
+来源基线：867a58395618162b92a7996a7797309bbc739aea
+原项目许可：Apache License 2.0，全文见 LICENSE-Apache-2.0.txt。
+
+本次提供新的 Go 本机 HTTPS 执行器、iOS Python HTTPS 脚本、安装脚本和网页界面。
+原工具调用系统 ICMP ping；本次改用指定 IP 的 HTTPS 请求及下载测试，
+指标和实现已改变。未复制原 input.txt，也未将其旧列表当作已验证地址。
+Cloudflare 名称仅用于说明测试目标，本项目不是 Cloudflare 官方产品。
