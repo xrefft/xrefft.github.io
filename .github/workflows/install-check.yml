@@ -1,0 +1,68 @@
+name: Verify published installers
+on:
+  push:
+    branches: [master]
+    paths: ['.github/workflows/install-check.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - name: Download and run published Unix installer
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          platform=linux
+          if [ "$RUNNER_OS" = macOS ]; then platform=macos; fi
+          curl -fSL --retry 2 "https://xrefft.github.io/cloudflare/install/install-$platform.sh" -o "$RUNNER_TEMP/install.sh"
+          sh "$RUNNER_TEMP/install.sh"
+          if [ "$RUNNER_OS" = Linux ]; then
+            test "$(xdg-mime query default x-scheme-handler/cfspeed)" = cf-speed.desktop
+          else
+            open 'cfspeed://open'
+          fi
+      - name: Download and run published Windows installer
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $scriptPath = Join-Path $env:RUNNER_TEMP 'install-windows.ps1'
+          Invoke-WebRequest -UseBasicParsing 'https://xrefft.github.io/cloudflare/install/install-windows.ps1' -OutFile $scriptPath
+          powershell -NoProfile -ExecutionPolicy Bypass -File $scriptPath
+          if ($LASTEXITCODE -ne 0) { throw 'Installer failed' }
+          $registered = (Get-Item 'HKCU:\Software\Classes\cfspeed\shell\open\command').GetValue('')
+          if ($registered -notmatch 'cf-speed.exe') { throw 'URL handler missing' }
+      - name: Verify installed service and real download
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, time, urllib.request
+          opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+          base = 'http://127.0.0.1:38479'
+          for attempt in range(60):
+              try:
+                  with opener.open(base + '/api/info', timeout=2) as response:
+                      info = json.load(response)
+                  break
+              except OSError:
+                  time.sleep(0.5)
+          else:
+              raise RuntimeError('Installer did not start local service')
+          assert info['app'] == 'cf-speed' and info['version'] == 'v0.1.0'
+          for ip in ['104.16.0.1', '162.159.140.220']:
+              payload = json.dumps(dict(ips=[ip], host='speed.cloudflare.com', samples=1, downloadBytes=1000000)).encode()
+              req = urllib.request.Request(base + '/api/test', data=payload, headers={'Origin':base, 'Content-Type':'application/json', 'X-Session-Token':info['token']})
+              with opener.open(req, timeout=20) as response:
+                  result = json.load(response)['results'][0]
+              print(json.dumps(result))
+              if result['bytes'] == 1000000 and result['downloadMbps'] is not None and result['latencyMs'] is not None:
+                  break
+          else:
+              raise RuntimeError('Installed service produced no valid download')
+          PY
